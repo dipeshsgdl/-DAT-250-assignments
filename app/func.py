@@ -1,5 +1,6 @@
 import bcrypt
 from urllib.parse import unquote,quote
+from app import query_db
 
 #### HASH ####
 def hash_password(plain_text_password):
