@@ -3,7 +3,7 @@ from app import app,query_db
 from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
 from datetime import datetime
 import os,sys
-from app.func import check_if_username_exist,hash_password,check_password
+from app.func import check_if_username_exist,hash_password,check_password,safe_convert,convert_back
 
 # this file contains all the different routes, and the logic for communicating with the database
 
@@ -15,22 +15,22 @@ def index():
 
     if form.login.is_submitted() and form.login.submit.data:
         print(form.validate(),form.errors['login'])
-        user = query_db('SELECT * FROM Users WHERE username="{}";'.format(form.login.username.data), one=True)
+        user = query_db('SELECT * FROM Users WHERE username="{}";'.format(safe_convert(form.login.username.data)), one=True)
         if user == None:
             flash('Username and/or Password incorrect')
-        elif user['password'] == form.login.password.data:
-            return redirect(url_for('stream', username=form.login.username.data))
+        elif check_password(form.login.password.data,user['password']):
+            return redirect(url_for('stream', username=safe_convert(form.login.username.data)))
         else:
             flash('Username and/or Password incorrect')
 
     elif form.register.is_submitted() and form.register.submit.data:
-        username_entered = form.register.username.data
+        username_entered = safe_convert(form.register.username.data)
         existing_username = check_if_username_exist(username_entered)
         if existing_username:
             flash('Username not available')
         else:
-            query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
-            form.register.last_name.data, form.register.password.data))
+            query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(username_entered,safe_convert(form.register.first_name.data),
+            safe_convert(form.register.last_name.data), hash_password(form.register.password.data)))
             return redirect(url_for('index'))
     return render_template('index.html', title='Welcome', form=form)
 
@@ -38,6 +38,7 @@ def index():
 # content stream page
 @app.route('/stream/<username>', methods=['GET', 'POST'])
 def stream(username):
+    username = safe_convert(username)
     form = PostForm()
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
     if form.is_submitted():
@@ -55,18 +56,20 @@ def stream(username):
 # comment page for a given post and user.
 @app.route('/comments/<username>/<int:p_id>', methods=['GET', 'POST'])
 def comments(username, p_id):
+    username = safe_convert(username)
     form = CommentsForm()
     if form.is_submitted():
         user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
-        query_db('INSERT INTO Comments (p_id, u_id, comment, creation_time) VALUES({}, {}, "{}", \'{}\');'.format(p_id, user['id'], form.comment.data, datetime.now()))
+        query_db('INSERT INTO Comments (p_id, u_id, comment, creation_time) VALUES({}, {}, "{}", \'{}\');'.format(p_id, user['id'], safe_convert(form.comment.data), datetime.now()))
 
     post = query_db('SELECT * FROM Posts WHERE id={};'.format(p_id), one=True)
     all_comments = query_db('SELECT DISTINCT * FROM Comments AS c JOIN Users AS u ON c.u_id=u.id WHERE c.p_id={} ORDER BY c.creation_time DESC;'.format(p_id))
-    return render_template('comments.html', title='Comments', username=username, form=form, post=post, comments=all_comments)
+    return render_template('comments.html', title='Comments', username=username, form=form, post=convert_back(post), comments=all_comments)
 
 # page for seeing and adding friends
 @app.route('/friends/<username>', methods=['GET', 'POST'])
 def friends(username):
+    username = safe_convert(username)
     form = FriendsForm()
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
     if form.is_submitted():
@@ -82,6 +85,7 @@ def friends(username):
 # see and edit detailed profile information of a user
 @app.route('/profile/<username>', methods=['GET', 'POST'])
 def profile(username):
+    username = safe_convert(username)
     form = ProfileForm()
     if form.is_submitted():
         query_db('UPDATE Users SET education="{}", employment="{}", music="{}", movie="{}", nationality="{}", birthday=\'{}\' WHERE username="{}" ;'.format(

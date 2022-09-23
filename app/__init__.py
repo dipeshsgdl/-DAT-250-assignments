@@ -4,9 +4,12 @@ from flask_bootstrap import Bootstrap
 #from flask_login import LoginManager
 import sqlite3
 import os
+import secrets
+
 
 # create and configure app
 app = Flask(__name__)
+app.secret_key = secrets.token_urlsafe(20)
 Bootstrap(app)
 app.config.from_object(Config)
 
