@@ -2,7 +2,9 @@ from flask import render_template, flash, redirect, url_for, request
 from app import app, query_db
 from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
 from datetime import datetime
-import os
+import os, func
+
+from app.func import check_if_username_exist
 
 # this file contains all the different routes, and the logic for communicating with the database
 
@@ -22,9 +24,18 @@ def index():
             flash('Username and/or Password incorrect')
 
     elif form.register.is_submitted() and form.register.submit.data:
-        query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
-         form.register.last_name.data, form.register.password.data))
-        return redirect(url_for('index'))
+        username_entered = form.login.username.data
+        existing_username = check_if_username_exist(username_entered)
+        existing_user = query_db('SELECT * FROM Users WHERE username="{}" limit 1;'.format(form.login.username.data), one=True)
+        
+        for i in existing_user:
+            print(i)
+        if existing_user:
+            flash('Username not available')
+        else:
+            query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
+            form.register.last_name.data, form.register.password.data))
+            return redirect(url_for('index'))
     return render_template('index.html', title='Welcome', form=form)
 
 
