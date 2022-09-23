@@ -1,8 +1,7 @@
 import bcrypt
 from urllib.parse import unquote,quote
-from app import query_db
+from app import app,query_db
 from app.forms  import IndexForm
-from flask import session
 
 # Hash
 def hash_password(plain_text_password):
@@ -21,11 +20,6 @@ def safe_convert(input):
 
 def convert_back(input):
     return unquote(input)
-
-# Check if user connected
-def check_user():
-  if session.get("user_id") is None: return False
-  else: return True
 
 def check_if_username_exist(username_entered):
     existing_user = query_db('SELECT * FROM Users WHERE username="{}" limit 1;'.format(IndexForm().login.username.data), one=True)
