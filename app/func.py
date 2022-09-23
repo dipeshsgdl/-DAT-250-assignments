@@ -1,6 +1,6 @@
 import bcrypt
 from urllib.parse import unquote,quote
-from app import app,query_db
+from app import query_db
 from app.forms  import IndexForm
 
 # Hash
@@ -22,10 +22,6 @@ def convert_back(input):
     return unquote(input)
 
 def check_if_username_exist(username_entered):
-    existing_user = query_db('SELECT * FROM Users WHERE username="{}" limit 1;'.format(IndexForm().login.username.data), one=True)
-    for i in existing_user:
-        print(i)
-    if username_entered == existing_user:
-        return True
-    else:
-        return False
+    existing_user = query_db('SELECT * FROM Users WHERE username="{}" limit 1;'.format(safe_convert(username_entered)), one=True)
+    if existing_user is None: return False
+    return False if existing_user['username'] is None else True
