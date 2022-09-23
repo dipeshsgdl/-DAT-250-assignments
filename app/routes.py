@@ -4,6 +4,9 @@ from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsFor
 from datetime import datetime
 import os, app.func
 
+
+from app.func import check_if_username_exist
+
 # this file contains all the different routes, and the logic for communicating with the database
 
 # home page/login/registration
@@ -22,9 +25,14 @@ def index():
             flash('Username and/or Password incorrect')
 
     elif form.register.is_submitted() and form.register.submit.data:
-        query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
-         form.register.last_name.data, form.register.password.data))
-        return redirect(url_for('index'))
+        username_entered = form.login.username.data
+        existing_username = func.check_if_username_exist(username_entered)
+        if existing_username:
+            flash('Username not available')
+        else:
+            query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
+            form.register.last_name.data, form.register.password.data))
+            return redirect(url_for('index'))
     return render_template('index.html', title='Welcome', form=form)
 
 
