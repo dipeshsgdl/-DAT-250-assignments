@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, FormField, TextAreaField, FileField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, FormField, TextAreaField, FileField, validators
 from wtforms.fields.html5 import DateField
 
 # defines all forms in the application, these will be instantiated by the template,
@@ -8,17 +8,17 @@ from wtforms.fields.html5 import DateField
 # TODO: There was some important security feature that wtforms provides, but I don't remember what; implement it
 
 class LoginForm(FlaskForm):
-    username = StringField('Username', render_kw={'placeholder': 'Username'})
-    password = PasswordField('Password', render_kw={'placeholder': 'Password'})
+    username = StringField('Username', [validators.InputRequired(),validators.Length(min=4)], render_kw={'placeholder': 'Username'})
+    password = PasswordField('Password', [validators.InputRequired(),validators.Length(min=4)], render_kw={'placeholder': 'Password'})
     remember_me = BooleanField('Remember me') # TODO: It would be nice to have this feature implemented, probably by using cookies
     submit = SubmitField('Sign In')
 
 class RegisterForm(FlaskForm):
-    first_name = StringField('First Name', render_kw={'placeholder': 'First Name'})
-    last_name = StringField('Last Name', render_kw={'placeholder': 'Last Name'})
-    username = StringField('Username', render_kw={'placeholder': 'Username'})
-    password = PasswordField('Password', render_kw={'placeholder': 'Password'})
-    confirm_password = PasswordField('Confirm Password', render_kw={'placeholder': 'Confirm Password'})
+    first_name = StringField('First Name', [validators.InputRequired(),validators.Length(min=4)], render_kw={'placeholder': 'First Name'})
+    last_name = StringField('Last Name', [validators.InputRequired(),validators.Length(min=4)], render_kw={'placeholder': 'Last Name'})
+    username = StringField('Username', [validators.InputRequired(),validators.Length(min=4)], render_kw={'placeholder': 'Username'})
+    password = PasswordField('Password', [validators.InputRequired(), validators.EqualTo('confirm_password', message='Passwords must match')], render_kw={'placeholder': 'Password'})
+    confirm_password = PasswordField('Confirm Password', [validators.Length(min=4)], render_kw={'placeholder': 'Confirm Password'})
     submit = SubmitField('Sign Up')
 
 class IndexForm(FlaskForm):

@@ -1,5 +1,5 @@
 from flask import render_template, flash, redirect, url_for, request
-from app import query_db
+from app import app,query_db
 from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
 from datetime import datetime
 import os,sys
@@ -14,6 +14,7 @@ def index():
     form = IndexForm()
 
     if form.login.is_submitted() and form.login.submit.data:
+        print(form.validate(),form.errors['login'])
         user = query_db('SELECT * FROM Users WHERE username="{}";'.format(form.login.username.data), one=True)
         if user == None:
             flash('Username and/or Password incorrect')
