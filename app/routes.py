@@ -2,7 +2,8 @@ from flask import render_template, flash, redirect, url_for, request
 from app import app, query_db
 from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
 from datetime import datetime
-import os, func
+import os
+
 
 from app.func import check_if_username_exist
 
@@ -25,12 +26,8 @@ def index():
 
     elif form.register.is_submitted() and form.register.submit.data:
         username_entered = form.login.username.data
-        existing_username = check_if_username_exist(username_entered)
-        existing_user = query_db('SELECT * FROM Users WHERE username="{}" limit 1;'.format(form.login.username.data), one=True)
-        
-        for i in existing_user:
-            print(i)
-        if existing_user:
+        existing_username = func.check_if_username_exist(username_entered)
+        if existing_username:
             flash('Username not available')
         else:
             query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(form.register.username.data, form.register.first_name.data,
