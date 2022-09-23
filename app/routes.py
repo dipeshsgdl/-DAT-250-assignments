@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, url_for, request
 from app import app, query_db
 from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
 from datetime import datetime
-import os
+import os, app.func
 
 # this file contains all the different routes, and the logic for communicating with the database
 
@@ -68,7 +68,7 @@ def friends(username):
             flash('User does not exist')
         else:
             query_db('INSERT INTO Friends (u_id, f_id) VALUES({}, {});'.format(user['id'], friend['id']))
-    
+
     all_friends = query_db('SELECT * FROM Friends AS f JOIN Users as u ON f.f_id=u.id WHERE f.u_id={} AND f.f_id!={} ;'.format(user['id'], user['id']))
     return render_template('friends.html', title='Friends', username=username, friends=all_friends, form=form)
 
@@ -81,6 +81,6 @@ def profile(username):
             form.education.data, form.employment.data, form.music.data, form.movie.data, form.nationality.data, form.birthday.data, username
         ))
         return redirect(url_for('profile', username=username))
-    
+
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
     return render_template('profile.html', title='profile', username=username, user=user, form=form)

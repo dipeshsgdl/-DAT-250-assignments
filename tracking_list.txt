@@ -1,0 +1,2 @@
+Fixed Issues:
+    -   Debug mode: on
