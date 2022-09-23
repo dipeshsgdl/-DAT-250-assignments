@@ -1,2 +1,3 @@
 Fixed Issues:
     -   Debug mode: on
+    -   Changed user/pass wrong instead of user wrong, pass wrong
