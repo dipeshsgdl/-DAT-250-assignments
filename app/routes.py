@@ -7,6 +7,9 @@ import os, app.func
 
 from app.func import check_if_username_exist
 
+
+from app.func import check_if_username_exist
+
 # this file contains all the different routes, and the logic for communicating with the database
 
 # home page/login/registration
