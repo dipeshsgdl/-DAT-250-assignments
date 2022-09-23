@@ -1,11 +1,8 @@
 from flask import render_template, flash, redirect, url_for, request
-from app import app, query_db
+from app import query_db
 from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
 from datetime import datetime
 import os, app.func
-
-
-from app.func import check_if_username_exist
 
 
 from app.func import check_if_username_exist
