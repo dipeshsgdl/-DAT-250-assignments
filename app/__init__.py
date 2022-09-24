@@ -1,10 +1,7 @@
 from flask import Flask, g
 from config import Config
 from flask_bootstrap import Bootstrap
-#from flask_login import LoginManager
-import sqlite3
-import os
-import secrets
+import flask_login, sqlite3, os, secrets
 
 
 # create and configure app
@@ -14,7 +11,9 @@ Bootstrap(app)
 app.config.from_object(Config)
 
 # TODO: Handle login management better, maybe with flask_login?
-#login = LoginManager(app)
+login_manager = flask_login.LoginManager()
+login_manager.init_app(app)
+login_manager.session_protection = "strong"
 
 # get an instance of the db
 def get_db():

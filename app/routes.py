@@ -1,17 +1,13 @@
 from flask import render_template, flash, redirect, url_for, request
-from app import app,query_db
+from app import app,query_db,login_manager
 from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
 from datetime import datetime
-import os,sys
+import os, flask_login
 from app.func import check_if_username_exist,hash_password,check_password,safe_convert,convert_back
-import flask_login
 
 # this file contains all the different routes, and the logic for communicating with the database
 
 #Login Management
-login_manager = flask_login.LoginManager()
-login_manager.init_app(app)
-login_manager.session_protection = "strong"
 
 class User(flask_login.UserMixin):
     pass
@@ -61,6 +57,7 @@ def index():
 @flask_login.login_required
 def stream(username):
     username = safe_convert(username)
+    if not safe_convert(flask_login.current_user.id) == username: username = safe_convert(flask_login.current_user.id)
     form = PostForm()
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
     if form.is_submitted():
@@ -80,21 +77,25 @@ def stream(username):
 @flask_login.login_required
 def comments(username, p_id):
     username = safe_convert(username)
+    if not safe_convert(flask_login.current_user.id) == username: username = safe_convert(flask_login.current_user.id)
     form = CommentsForm()
     if form.is_submitted():
         user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
         query_db('INSERT INTO Comments (p_id, u_id, comment, creation_time) VALUES({}, {}, "{}", \'{}\');'.format(p_id, user['id'], safe_convert(form.comment.data), datetime.now()))
 
     post = query_db('SELECT * FROM Posts WHERE id={};'.format(p_id), one=True)
-    all_comments = query_db('SELECT DISTINCT * FROM Comments AS c JOIN Users AS u ON c.u_id=u.id WHERE c.p_id={} ORDER BY c.creation_time DESC;'.format(p_id))
-    return render_template('comments.html', title='Comments', username=username, form=form, post=convert_back(post), comments=all_comments)
+    all_comments = query_db('SELECT DISTINCT creation_time, comment, username FROM Comments AS c JOIN Users AS u ON c.u_id=u.id WHERE c.p_id={} ORDER BY c.creation_time DESC;'.format(p_id))
+    converted_comments = []
+    for i,x in enumerate(all_comments): #Not the best approach, but for now... it will do.
+        converted_comments.append({'comment': convert_back(x['comment']), 'creation_time': x['creation_time'], 'username': x['username']})
+    return render_template('comments.html', title='Comments', username=username, form=form, post=post, comments=converted_comments)
 
 # page for seeing and adding friends
 @app.route('/friends/<username>', methods=['GET', 'POST'])
 @flask_login.login_required
 def friends(username):
     username = safe_convert(username)
-    # if not safe_convert(flask_login.current_user.id) == username: username = safe_convert(flask_login.current_user.id)
+    if not safe_convert(flask_login.current_user.id) == username: username = safe_convert(flask_login.current_user.id)
     form = FriendsForm()
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
     if form.is_submitted():
@@ -112,7 +113,6 @@ def friends(username):
 @flask_login.login_required
 def profile(username):
     username = safe_convert(username)
-    # if not safe_convert(flask_login.current_user.id) == username: username = safe_convert(flask_login.current_user.id)
     form = ProfileForm()
     if form.is_submitted():
         query_db('UPDATE Users SET education="{}", employment="{}", music="{}", movie="{}", nationality="{}", birthday=\'{}\' WHERE username="{}" ;'.format(
