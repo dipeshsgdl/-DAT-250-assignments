@@ -13,3 +13,4 @@ Fixed Issues:
     -   Changed user/pass wrong instead of user wrong, pass wrong (issue: Username right or wrong , Tells if password is wrong) (A04:2021-Insecure Design)
     -   Checks if username already exists (issue: Account can be created even though it already exists)
     -   Password is encrypted using bcrypt, base64, and sha256 (issue: Password not encrypted)
+    -   Checks if some fields are empty or not
