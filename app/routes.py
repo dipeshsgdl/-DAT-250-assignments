@@ -4,21 +4,42 @@ from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsFor
 from datetime import datetime
 import os,sys
 from app.func import check_if_username_exist,hash_password,check_password,safe_convert,convert_back
+import flask_login
 
 # this file contains all the different routes, and the logic for communicating with the database
+
+#Login Management
+login_manager = flask_login.LoginManager()
+login_manager.init_app(app)
+login_manager.session_protection = "strong"
+
+class User(flask_login.UserMixin):
+    pass
+
+@login_manager.user_loader
+def user_loader(user_id):
+    if check_if_username_exist(user_id) is False:
+        return
+    user = User()
+    user.id = user_id
+    return user
+
+# -----
 
 # home page/login/registration
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
+    if flask_login.current_user.is_authenticated: return redirect(url_for('stream', username=safe_convert(flask_login.current_user.id)))
     form = IndexForm()
-
     if form.login.is_submitted() and form.login.submit.data:
-        print(form.validate(),form.errors['login'])
         user = query_db('SELECT * FROM Users WHERE username="{}";'.format(safe_convert(form.login.username.data)), one=True)
         if user == None:
             flash('Username and/or Password incorrect')
         elif check_password(form.login.password.data,user['password']):
+            user = User()
+            user.id = safe_convert(form.login.username.data)
+            flask_login.login_user(user,remember = form.login.remember_me)
             return redirect(url_for('stream', username=safe_convert(form.login.username.data)))
         else:
             flash('Username and/or Password incorrect')
@@ -37,6 +58,7 @@ def index():
 
 # content stream page
 @app.route('/stream/<username>', methods=['GET', 'POST'])
+@flask_login.login_required
 def stream(username):
     username = safe_convert(username)
     form = PostForm()
@@ -55,6 +77,7 @@ def stream(username):
 
 # comment page for a given post and user.
 @app.route('/comments/<username>/<int:p_id>', methods=['GET', 'POST'])
+@flask_login.login_required
 def comments(username, p_id):
     username = safe_convert(username)
     form = CommentsForm()
@@ -68,8 +91,10 @@ def comments(username, p_id):
 
 # page for seeing and adding friends
 @app.route('/friends/<username>', methods=['GET', 'POST'])
+@flask_login.login_required
 def friends(username):
     username = safe_convert(username)
+    # if not safe_convert(flask_login.current_user.id) == username: username = safe_convert(flask_login.current_user.id)
     form = FriendsForm()
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
     if form.is_submitted():
@@ -84,8 +109,10 @@ def friends(username):
 
 # see and edit detailed profile information of a user
 @app.route('/profile/<username>', methods=['GET', 'POST'])
+@flask_login.login_required
 def profile(username):
     username = safe_convert(username)
+    # if not safe_convert(flask_login.current_user.id) == username: username = safe_convert(flask_login.current_user.id)
     form = ProfileForm()
     if form.is_submitted():
         query_db('UPDATE Users SET education="{}", employment="{}", music="{}", movie="{}", nationality="{}", birthday=\'{}\' WHERE username="{}" ;'.format(
@@ -95,3 +122,13 @@ def profile(username):
 
     user = query_db('SELECT * FROM Users WHERE username="{}";'.format(username), one=True)
     return render_template('profile.html', title='profile', username=username, user=user, form=form)
+
+@app.route('/logout')
+@flask_login.login_required
+def logout():
+    flask_login.logout_user()
+    return redirect(url_for('index'))
+
+@login_manager.unauthorized_handler
+def unauthorized_handler():
+    return 'Unauthorized', 401
