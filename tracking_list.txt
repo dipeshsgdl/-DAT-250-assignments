@@ -1,2 +1,14 @@
 Fixed Issues:
     -   Debug mode: on
+Issues:
+    -   You can guess as many times as you want without restriction -> bruteforce
+    -   SQL Injection (A03:2021-Injection)
+    -   We can access other users information , post, add friends, change profile (A02:2021-Cryptographic Failures )
+    http://127.0.0.1:5000/stream/<username>
+    -   Password not encrypted
+    -   User can't change password
+
+Fixed Issues:
+    -   Debug mode: on (issue: debug mode on -> /console -> brute force) (A01:2021 – Broken Access Control , A05:2021-Security Misconfiguration)
+    -   Changed user/pass wrong instead of user wrong, pass wrong (issue: Username right or wrong , Tells if password is wrong) (A04:2021-Insecure Design)
+    -   Checks if username already exists (issue: Account can be created even though it already exists)
