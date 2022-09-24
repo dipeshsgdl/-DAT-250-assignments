@@ -1,6 +1,6 @@
 import bcrypt
 from urllib.parse import unquote,quote
-from app import app,query_db
+from app import app, query_db
 from app.forms  import IndexForm
 
 # Hash
