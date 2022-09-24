@@ -1,3 +1,5 @@
+Fixed Issues:
+    -   Debug mode: on
 Issues:
     -   You can guess as many times as you want without restriction -> bruteforce
     -   SQL Injection (A03:2021-Injection)
