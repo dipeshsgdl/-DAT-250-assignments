@@ -1,12 +1,8 @@
-Fixed Issues:
-    -   Debug mode: on
 Issues:
-    -   You can guess as many times as you want without restriction -> bruteforce
-    -   SQL Injection (A03:2021-Injection)
-    -   We can access other users information , post, add friends, change profile (A02:2021-Cryptographic Failures )
-    http://127.0.0.1:5000/stream/<username>
     -   User can't change password
-    -   No Cookies or sessions implemented
+
+Pending for review:
+    -   SQL Injection (A03:2021-Injection)
 
 Fixed Issues:
     -   Debug mode: on (issue: debug mode on -> /console -> brute force) (A01:2021 – Broken Access Control , A05:2021-Security Misconfiguration)
@@ -14,3 +10,8 @@ Fixed Issues:
     -   Checks if username already exists (issue: Account can be created even though it already exists)
     -   Password is encrypted using bcrypt, base64, and sha256 (issue: Password not encrypted)
     -   Checks if some fields are empty or not
+    -   Implemented flask_login (issue: No Cookies or sessions implemented)
+    -   No longer can post as other person (issue: We can access other users information , post, add friends, change profile) (A02:2021-Cryptographic Failures )
+    -   Upload only defined extensions (issue: You can upload any kind of file)
+    -   Random secret key (issue: A secret key is required to use CSRF)
+    -   Implemented Rate-limit (issue: You can guess as many times as you want without restriction -> bruteforce)
