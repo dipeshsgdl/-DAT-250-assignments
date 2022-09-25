@@ -13,3 +13,4 @@ Fixed Issues:
     -   Checks if some fields are empty or not
     -   Implemented flask_login (issue: No Cookies or sessions implemented)
     -   No longer can post as other person (issue: We can access other users information , post, add friends, change profile) (A02:2021-Cryptographic Failures )
+    -   Upload only defined extensions (issue: You can upload any kind of file)
