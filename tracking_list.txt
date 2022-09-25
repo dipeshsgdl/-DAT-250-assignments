@@ -1,5 +1,4 @@
 Issues:
-    -   You can guess as many times as you want without restriction -> bruteforce
     -   User can't change password
 
 Pending for review:
@@ -14,3 +13,5 @@ Fixed Issues:
     -   Implemented flask_login (issue: No Cookies or sessions implemented)
     -   No longer can post as other person (issue: We can access other users information , post, add friends, change profile) (A02:2021-Cryptographic Failures )
     -   Upload only defined extensions (issue: You can upload any kind of file)
+    -   Random secret key (issue: A secret key is required to use CSRF)
+    -   Implemented Rate-limit (issue: You can guess as many times as you want without restriction -> bruteforce)
