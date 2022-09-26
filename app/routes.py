@@ -110,7 +110,7 @@ def friends(username):
 # see and edit detailed profile information of a user
 @app.route('/profile/<username>', methods=['GET', 'POST'])
 @flask_login.login_required
-def profile(username):
+def profile(username): #Implement a thingy where it checks if it's a friend or not. If it is not a friend -> do not show
     username = safe_convert(username)
     form = ProfileForm()
     if form.is_submitted():

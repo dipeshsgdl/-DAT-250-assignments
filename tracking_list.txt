@@ -1,5 +1,6 @@
 Issues:
     -   User can't change password
+    -   Implement friend check for the profile/<username>
 
 Pending for review:
     -   SQL Injection (A03:2021-Injection)
