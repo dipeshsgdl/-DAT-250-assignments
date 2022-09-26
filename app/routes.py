@@ -29,24 +29,21 @@ def user_loader(user_id):
 def index():
     if flask_login.current_user.is_authenticated: return redirect(url_for('stream', username=safe_convert(flask_login.current_user.id)))
     form = IndexForm()
-    if form.validate():
-        print(form.errors)
     if form.login.is_submitted() and form.login.submit.data:
         user = query_db('SELECT * FROM Users WHERE username="{}";'.format(safe_convert(form.login.username.data)), one=True)
         if user == None:
-            flash('Username and/or Password incorrect','error')
+            flash('Username and/or Password incorrect')
         elif check_password(form.login.password.data,user['password']):
             user = User()
             user.id = safe_convert(form.login.username.data)
             flask_login.login_user(user,remember = form.login.remember_me)
             return redirect(url_for('stream', username=safe_convert(form.login.username.data)))
         else:
-            flash('Username and/or Password incorrect','error')
-        print(request.remote_addr) # This might help in implementing feature to limit how many tries one can make in x of hours/minutes
+            flash('Username and/or Password incorrect')
     elif form.register.is_submitted() and form.register.submit.data:
         username = safe_convert(form.register.username.data)
         if check_if_username_exist(username):
-            flash('Username might already exist or it might have wrong format.','error')
+            flash('Username might already exist or it might have wrong format.')
         else:
             query_db('INSERT INTO Users (username, first_name, last_name, password) VALUES("{}", "{}", "{}", "{}");'.format(username,safe_convert(form.register.first_name.data),
             safe_convert(form.register.last_name.data), hash_password(form.register.password.data)))
@@ -68,7 +65,7 @@ def stream(username):
                 path = os.path.join(app.config['UPLOAD_PATH'], secure_filename(form.image.data.filename))
                 form.image.data.save(path)
             else:
-                flash('File type is not supported!', 'error')
+                flash('File type is not supported!')
                 return redirect(url_for('stream', username=username))
         query_db('INSERT INTO Posts (u_id, content, image, creation_time) VALUES({}, "{}", "{}", \'{}\');'.format(user['id'], form.content.data, form.image.data.filename, datetime.now()))
         return redirect(url_for('stream', username=username))
@@ -104,7 +101,7 @@ def friends(username):
     if form.is_submitted():
         friend = query_db('SELECT * FROM Users WHERE username="{}";'.format(form.username.data), one=True)
         if friend is None:
-            flash('User does not exist', 'error')
+            flash('User does not exist')
         else:
             query_db('INSERT INTO Friends (u_id, f_id) VALUES({}, {});'.format(user['id'], friend['id']))
     all_friends = query_db('SELECT * FROM Friends AS f JOIN Users as u ON f.f_id=u.id WHERE f.u_id={} AND f.f_id!={} ;'.format(user['id'], user['id']))
@@ -136,5 +133,5 @@ def unauthorized_handler():
     return 'Unauthorized', 401
 
 @app.errorhandler(429)
-def ratelimit_handler(e):
+def rate_limit_handler(e):
   return "You have exceeded your rate-limit, please chill out for few minutes"
