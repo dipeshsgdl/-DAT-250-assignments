@@ -1,6 +1,5 @@
 Issues:
     -   User can't change password
-    -   Implement friend check for the profile/<username>
 
 Pending for review:
     -   SQL Injection (A03:2021-Injection)
@@ -16,3 +15,4 @@ Fixed Issues:
     -   Upload only defined extensions (issue: You can upload any kind of file)
     -   Random secret key (issue: A secret key is required to use CSRF)
     -   Implemented Rate-limit (issue: You can guess as many times as you want without restriction -> bruteforce)
+    -   Implement friend check for the profile/<username>

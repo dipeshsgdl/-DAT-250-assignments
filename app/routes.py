@@ -2,7 +2,7 @@ from flask import render_template, flash, redirect, url_for, request
 from app import app,query_db,login_manager,limiter
 from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
 from datetime import datetime
-from app.func import check_if_username_exist,hash_password,check_password,safe_convert,convert_back,allowed_file
+from app.func import check_if_username_exist, get_userID,hash_password,check_password,safe_convert,convert_back,allowed_file, are_friends
 from werkzeug.utils import secure_filename
 import os, flask_login
 
@@ -25,7 +25,7 @@ def user_loader(user_id):
 # home page/login/registration
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
-@limiter.limit('5 per minute') # 5 requests per minute for now seems reasonable (probably change later to something like 10/second)
+@limiter.limit('10 per minute') # 10 requests per minute for now seems reasonable (probably change later to something like 10/second)
 def index():
     if flask_login.current_user.is_authenticated: return redirect(url_for('stream', username=safe_convert(flask_login.current_user.id)))
     form = IndexForm()
@@ -112,6 +112,9 @@ def friends(username):
 @flask_login.login_required
 def profile(username): #Implement a thingy where it checks if it's a friend or not. If it is not a friend -> do not show
     username = safe_convert(username)
+    if safe_convert(flask_login.current_user.id) != username:
+        if are_friends(get_userID(flask_login.current_user.id),get_userID(username)) is False:
+            username = safe_convert(flask_login.current_user.id)
     form = ProfileForm()
     if form.is_submitted():
         query_db('UPDATE Users SET education="{}", employment="{}", music="{}", movie="{}", nationality="{}", birthday=\'{}\' WHERE username="{}" ;'.format(
