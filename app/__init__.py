@@ -42,9 +42,26 @@ def init_db():
         db.commit()
 
 # perform generic query, not very secure yet
-def query_db(query, one=False):
+def query_db(query,arg,one=False):
     db = get_db()
-    cursor = db.execute(query)
+    cursor = db.execute(query, arg)
+    rv = cursor.fetchall()
+    cursor.close()
+    db.commit()
+    return (rv[0] if rv else None) if one else rv
+
+def user_info(username, one=False):
+    db = get_db()
+    cursor = db.execute("SELECT * FROM Users WHERE username=?", [username])
+    rv = cursor.fetchall()
+    cursor.close()
+    db.commit()
+    return (rv[0] if rv else None) if one else rv
+
+def query_friends(users,one=False):
+    if len(users) != 2: return 0
+    db = get_db()
+    cursor = db.execute("SELECT * FROM Friends WHERE u_id=? AND f_id=?", [users[0],users[1]])
     rv = cursor.fetchall()
     cursor.close()
     db.commit()
