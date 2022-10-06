@@ -1,6 +1,6 @@
 import bcrypt,base64,hashlib
 from urllib.parse import unquote,quote
-from app import app,query_db, query_friends, user_info
+from app import app,query_friends, user_info
 
 # Hash
 def hash_password(plain_text_password):
@@ -16,7 +16,7 @@ def safe_convert(input):
     if input is None: return input
     try:
       return int(input)
-    except:
+    except ValueError:
       return quote(input)
 
 def convert_back(input):
@@ -35,7 +35,7 @@ def are_friends(main, friend):
     try:
       main = int(main)
       friend = int(friend)
-    except:
+    except ValueError:
       return "Exception: one of the inputs that were given were not an int"
     friends = query_friends([main,friend],one=True)
     if friends is None: return False
@@ -46,18 +46,18 @@ def both_friends(userA, userB):
     try:
       userA = int(userA)
       userB = int(userB)
-    except:
+    except ValueError:
       return "Exception: one of the inputs that were given were not an int"
     friends_0 = query_friends([userA,userB],one=True)
     friends_1 = query_friends([userB,userA],one=True)
     if friends_0 is None or friends_1 is None: return False
     return True
 
-def get_userID(username):
+def get_user_id(username):
     if username is None: return
     user = user_info(safe_convert(username),one=True)
     try:
       return int(user['id'])
-    except:
+    except ValueError:
       print('Expected number')
-      return False
+    return False

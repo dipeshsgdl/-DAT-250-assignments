@@ -48,7 +48,9 @@ def query_db(query,arg,one=False):
     rv = cursor.fetchall()
     cursor.close()
     db.commit()
-    return (rv[0] if rv else None) if one else rv
+    if one:
+        return rv[0] if rv else None
+    return rv
 
 def user_info(username, one=False):
     db = get_db()
@@ -56,7 +58,9 @@ def user_info(username, one=False):
     rv = cursor.fetchall()
     cursor.close()
     db.commit()
-    return (rv[0] if rv else None) if one else rv
+    if one:
+        return rv[0] if rv else None
+    return rv
 
 def query_friends(users,one=False):
     if len(users) != 2: return 0
@@ -65,7 +69,9 @@ def query_friends(users,one=False):
     rv = cursor.fetchall()
     cursor.close()
     db.commit()
-    return (rv[0] if rv else None) if one else rv
+    if one:
+        return rv[0] if rv else None
+    return rv
 
 # TODO: Add more specific queries to simplify code
 
