@@ -1,9 +1,13 @@
+import os
+import secrets
+import sqlite3
+import flask_login
 from flask import Flask, g
 from config import Config
 from flask_bootstrap import Bootstrap
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-import flask_login, sqlite3, os, secrets
+
 
 
 # create and configure app
@@ -21,7 +25,7 @@ login_manager.session_protection = "strong"
 limiter = Limiter(
     app,
     key_func=get_remote_address,
-    default_limits=["100 per hour"],
+    default_limits=["5 per second"],
     storage_uri="memory://",
 )
 

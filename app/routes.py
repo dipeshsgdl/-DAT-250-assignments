@@ -1,11 +1,14 @@
-from flask import render_template, flash, redirect, url_for, request
+import os
+from datetime import datetime
+from flask import render_template, flash, redirect, url_for
+import flask_login
+from werkzeug.utils import secure_filename
 from app import app, query_db, login_manager, limiter, user_info
 from app.forms import IndexForm, PostForm, FriendsForm, ProfileForm, CommentsForm
-from datetime import datetime
 from app.func import check_if_username_exist,get_user_id, hash_password, check_password, safe_convert, convert_back, allowed_file, are_friends
-from werkzeug.utils import secure_filename
-import os
-import flask_login
+
+
+
 
 # this file contains all the different routes, and the logic for communicating with the database
 
@@ -19,7 +22,7 @@ class User(flask_login.UserMixin):
 @login_manager.user_loader
 def user_loader(user_id):
     if check_if_username_exist(user_id) is False:
-        return
+        return None
     user = User()
     user.id = user_id
     return user
@@ -36,7 +39,7 @@ def index():
     form = IndexForm()
     if form.login.is_submitted() and form.login.submit.data:
         user = user_info(safe_convert(form.login.username.data),one=True)
-        if user == None:
+        if user is None:
             flash('Username and/or Password incorrect')
         elif check_password(form.login.password.data, user['password']):
             user = User()
@@ -148,5 +151,5 @@ def unauthorized_handler():
 
 
 @app.errorhandler(429)
-def rate_limit_handler(e):
+def rate_limit_handler():
     return "You have exceeded your rate-limit, please chill out for few minutes"

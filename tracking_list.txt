@@ -1,5 +1,11 @@
 Issues:
     -   User can't change password
+    -   Secure flag is not set in the cookie : session
+    -   X-XSS-Protection is not set
+    -   X-Frame-Options is not set
+    -   X-Content-Type-Options is not set
+    -   Strict-Transport-Security is not set
+    -   CSP is not set
 
 
 Fixed Issues:
